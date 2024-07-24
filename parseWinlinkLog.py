@@ -4,6 +4,7 @@
 # Contact: k3jsj@arrl.net
 
 import re
+import csv
 
 
 
@@ -91,40 +92,52 @@ def parse_session_complete_info(log_record):
 def find_specific_lines(log_text):
     lines = log_text.split('\n')
     keywords = ["Connection to", "*** Messages sent", "*** Messages Received", "*** Session", "Station Bearing"]
+
+    with open('file.csv', 'w', newline='') as file:
+       writer =csv.writer(file)
+       writer.writerow(['Gateway','Date', 'Time', 'DialFrequency', 'Bearing', 'Range', 'Units', \
+                        'MsgSent', 'BytesSent', 'TimeSentSec', 'SentBytesPerMinute', \
+                        'MsgRecv', 'BytesRx', 'TimeRecSec', 'RecBytesPerMinute', \
+                        'DurationSec', 'SesAvgThruPut', 'SecMinThruPut'])
+       
     
-    for i, line in enumerate(lines):
-        for keyword in keywords:
-            if keyword in line:
-                print(f"{keyword} found in line {i + 1}: {line}")
-                if ( keyword == "Connection to"):
-                    result = parse_connection_info_HF(line)
-                    if result:
-                        gateway, date, time, usb_dial_frequency = result
-                        print(gateway, date, time, usb_dial_frequency)
+       for i, line in enumerate(lines):
+           for keyword in keywords:
+              if keyword in line:
+                  print(f"{keyword} found in line {i + 1}: {line}")
+                  if ( keyword == "Connection to"):
+                      result = parse_connection_info_HF(line)
+                      if result:
+                          gateway, date, time, usb_dial_frequency = result
+                          print(gateway, date, time, usb_dial_frequency)
                         
-                if ( keyword == "Station Bearing"):
+                  if ( keyword == "Station Bearing"):
                     result = parse_bearing_info(line)
                     if result:
                        bearing, range, units = result
                        print(bearing, range, units)
-                if ( keyword == "*** Messages sent"):
+                  if ( keyword == "*** Messages sent"):
                     result = parse_message_sent_info(line)
                     if result:
                        msg_sent, bytes_sent, time_sent_in_seconds, sent_bytes_per_minute  = result
                        print(msg_sent, bytes_sent, time_sent_in_seconds, sent_bytes_per_minute)
                        
-                if ( keyword == "*** Messages Received"):                    
-                    result = parse_message_received_info(line)
-                    if result:
-                       msg_received, bytes_received, time_received_in_seconds, received_bytes_per_minute = result
-                       print(msg_received, bytes_received, time_received_in_seconds, received_bytes_per_minute)
+                  if ( keyword == "*** Messages Received"):                    
+                      result = parse_message_received_info(line)
+                      if result:
+                         msg_received, bytes_received, time_received_in_seconds, received_bytes_per_minute = result
+                         print(msg_received, bytes_received, time_received_in_seconds, received_bytes_per_minute)
                        
-                if ( keyword == "*** Session"):
-                    result = parse_session_complete_info(line)
+                  if ( keyword == "*** Session"):
+                      result = parse_session_complete_info(line)
                     
-                    if result:
-                        session_duration_seconds, session_avg_throughput, session_min_throughput = result
-                        print(session_duration_seconds, session_avg_throughput, session_min_throughput)
+                      if result:
+                          session_duration_seconds, session_avg_throughput, session_min_throughput = result
+                          print(session_duration_seconds, session_avg_throughput, session_min_throughput)
+                          writer.writerow([gateway, date, time, usb_dial_frequency, bearing, range, units, msg_sent, bytes_sent, time_sent_in_seconds, \
+                            sent_bytes_per_minute, msg_received, bytes_received, time_received_in_seconds, received_bytes_per_minute, \
+                            session_duration_seconds, session_avg_throughput, session_min_throughput])
+                          
                        
 		
 		
@@ -158,8 +171,10 @@ FQ
 *** Disconnected from Winlink RMS: W6IDS @ 2021/12/11 16:51:54
 *** Session: 1.4 min;  Avg Throughput: 255 Bytes/min;   1 Min Peak Throughput: 255 Bytes/min"""
 
-
-find_specific_lines(log_text)
+with open('data.log','r') as file:
+  data = file.read().replace('\\n', '')
+  
+find_specific_lines(data)
 
 
 
