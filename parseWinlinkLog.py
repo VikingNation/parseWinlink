@@ -2,9 +2,27 @@
 #
 # Author: Jason Johnson
 # Contact: k3jsj@arrl.net
-
+import sys
 import re
 import csv
+
+def parseWinlink():
+    
+    if len(sys.argv) != 2:
+        print("Usage: parseWinlinkLog file.log")
+        print("       Parse WINLINK connection logfile for Vara HF connections.")
+        print("       Credits:  Jason Johnson (k3jsj@arrl.net)")
+        print("")      
+        sys.exit(1)
+
+    input_file = sys.argv[1]
+
+    with open(input_file,'r') as file:
+      data = file.read().replace('\\n', '')
+      
+    find_specific_lines(data)
+    file.close()
+
 
 
 
@@ -171,11 +189,7 @@ FQ
 *** Disconnected from Winlink RMS: W6IDS @ 2021/12/11 16:51:54
 *** Session: 1.4 min;  Avg Throughput: 255 Bytes/min;   1 Min Peak Throughput: 255 Bytes/min"""
 
-with open('data.log','r') as file:
-  data = file.read().replace('\\n', '')
-  
-find_specific_lines(data)
 
 
-
-
+if __name__ == "__main__":
+    parseWinlink()
