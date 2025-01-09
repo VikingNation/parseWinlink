@@ -8,19 +8,20 @@ import csv
 
 def parseWinlink():
     
-    if len(sys.argv) != 2:
-        print("Usage: parseWinlinkLog file.log")
-        print("       Parse WINLINK connection logfile for Vara HF connections.")
+    if len(sys.argv) != 3:
+        print("Usage: parseWinlinkLog input.log output.csv")
+        print("       Parse WINLINK connection logfile for Vara HF connections and write output to output.csv")
         print("       Credits:  Jason Johnson (k3jsj@arrl.net)")
         print("")      
         sys.exit(1)
 
     input_file = sys.argv[1]
+    output_file = sys.argv[2]
 
     with open(input_file,'r') as file:
       data = file.read().replace('\\n', '')
       
-    find_specific_lines(data)
+    find_specific_lines(data, output_file)
     file.close()
 
 
@@ -107,11 +108,11 @@ def parse_session_complete_info(log_record):
 
 
     
-def find_specific_lines(log_text):
+def find_specific_lines(log_text, output_file):
     lines = log_text.split('\n')
     keywords = ["Connection to", "*** Messages sent", "*** Messages Received", "*** Session", "Station Bearing"]
 
-    with open('file.csv', 'w', newline='') as file:
+    with open(output_file, 'w', newline='') as file:
        writer =csv.writer(file)
        writer.writerow(['Gateway','Date', 'Time', 'DialFrequency', 'Bearing', 'Range', 'Units', \
                         'MsgSent', 'BytesSent', 'TimeSentSec', 'SentBytesPerMinute', \
@@ -159,7 +160,8 @@ def find_specific_lines(log_text):
                        
 		
 		
-
+    file.close()
+    
 # Example usage:
 log_text = """*** Winlink Vara Connection to W6IDS @ 2021/12/11 16:50:28  USB Dial: 7083.000
 *** Station Bearing: 281,  Range: 708 km
